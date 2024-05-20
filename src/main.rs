@@ -85,7 +85,7 @@ fn main() {
     let ciphertexts: Vec<Vec<u8>> = ciphertext_hex.iter().map(|&hex| hex_to_bytes(hex)).collect();
 
     // Define the known part of the key
-    let key = "Bitcoin: A purely peer-to-peer v";
+    let key = "Bitcoin: A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through a financial institution.";
     let key_bytes = key.as_bytes();
 
     for (index, ciphertext) in ciphertexts.iter().enumerate() {

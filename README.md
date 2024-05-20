@@ -1,6 +1,19 @@
-Sure, let's expand the README to include the decrypted messages we obtained through the initial process and explain the hypothesis testing and the partial decryption with the known key part "Bitcoin: A purely peer-to-peer".
 
-Here's the updated README:
+Final results:
+Final Decrypted Messages
+With the correct key, the final decrypted messages are:
+
+1. **Decrypted message** 0: The Times 03/Jan/2009 Chancellor on brink of second bailout for banks.
+2. **Decrypted message** 1: Governments are good at cutting off the heads of a centrally controlled networks like Napster, but pure P2P networks like Gnutella and Tor seem to be holding their own.
+3. **Decrypted message** 2: Bitcoin is great as a form of digital money, but its scripting language is too weak for any kind of serious advanced applications to be built on top.
+4. **Decrypted message** 3: In order to have a decentralized database, you need to have security. In order to have security, you need to have incentives.
+5. **Decrypted message** 4: As society becomes more and more complex, cheating will in many ways become progressively easier and easier to do and harder to police or even understand.
+6. **Decrypted message** 5: I began to realize new possibilities opening up between the fields of ICT and game theory, and the inevitable social change to which this would lead.
+7. **Decrypted message** 6: Cryptocurrencies allowed non-custodial exchange, without users having to sign up or create accounts.
+8. **Decrypted message** 7: Not your keys, Not your coins.
+9. **Decrypted message** 8: Bitcoin: A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through a financial institution.
+
+## Explanation below
 
 ---
 
@@ -145,6 +158,26 @@ Using the extended key part, we obtained the following decrypted messages:
 
 ---
 
+### Final Realization
+After further analysis and googling, we realized that the key is the abstract of the Bitcoin whitepaper:
 
+"Bitcoin: A purely peer-to-peer version of electronic cash would allow online
+payments to be sent directly from one party to another without going through a
+financial institution."
+
+Using this full key, we were able to decrypt the entire messages accurately.
+
+Final Decrypted Messages
+With the correct key, the final decrypted messages are:
+
+1. **Decrypted message** 0: The Times 03/Jan/2009 Chancellor on brink of second bailout for banks.
+2. **Decrypted message** 1: Governments are good at cutting off the heads of a centrally controlled networks like Napster, but pure P2P networks like Gnutella and Tor seem to be holding their own.
+3. **Decrypted message** 2: Bitcoin is great as a form of digital money, but its scripting language is too weak for any kind of serious advanced applications to be built on top.
+4. **Decrypted message** 3: In order to have a decentralized database, you need to have security. In order to have security, you need to have incentives.
+5. **Decrypted message** 4: As society becomes more and more complex, cheating will in many ways become progressively easier and easier to do and harder to police or even understand.
+6. **Decrypted message** 5: I began to realize new possibilities opening up between the fields of ICT and game theory, and the inevitable social change to which this would lead.
+7. **Decrypted message** 6: Cryptocurrencies allowed non-custodial exchange, without users having to sign up or create accounts.
+8. **Decrypted message** 7: Not your keys, Not your coins.
+9. **Decrypted message** 8: Bitcoin: A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through a financial institution.
 
 This README provides a detailed explanation of the steps taken to decrypt the XOR-encrypted messages, the initial decrypted results, the hypothesis testing, and the partial decryption using the known part of the key.
