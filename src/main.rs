@@ -65,4 +65,54 @@ fn main() {
 
     // Print the derived key
     println!("Derived key: {}", key.iter().map(|&k| format!("{:02x}", k)).collect::<String>());
+
+
+    let ciphertexts: Vec<Vec<u8>> = ciphertext_hex.iter().map(|&hex| hex_to_bytes(hex)).collect();
+
+    // Define the known plaintext for message 7
+    let known_plaintext = "Not your keys, Not your coins.";
+    let known_plaintext_bytes = known_plaintext.as_bytes();
+
+    // XOR the known plaintext with the ciphertext to obtain the key
+    let mut key = Vec::new();
+    let ciphertext_7 = &ciphertexts[7];
+    for (i, &byte) in known_plaintext_bytes.iter().enumerate() {
+        key.push(byte ^ ciphertext_7[i]);
+    }
+
+    println!("Extracted key: {}", hex::encode(&key));
+
+    let ciphertexts: Vec<Vec<u8>> = ciphertext_hex.iter().map(|&hex| hex_to_bytes(hex)).collect();
+
+    // Define the known plaintext for message 7
+    let known_plaintext = "Not your keys, Not your coins.";
+    let known_plaintext_bytes = known_plaintext.as_bytes();
+
+    // XOR the known plaintext with the ciphertext to obtain the key part
+    let mut key = vec![0xff; ciphertexts[0].len()]; // Initialize with 0xff (unknown)
+    let ciphertext_7 = &ciphertexts[7];
+    for (i, &byte) in known_plaintext_bytes.iter().enumerate() {
+        key[i] = byte ^ ciphertext_7[i];
+    }
+
+    println!("Extracted key part: {}", hex::encode(&key));
+
+    // Use the extracted key part to decrypt the other ciphertexts
+    for (index, ciphertext) in ciphertexts.iter().enumerate() {
+        let mut decrypted_message = Vec::new();
+        for (i, &byte) in ciphertext.iter().enumerate() {
+            let key_byte = key[i % key.len()];
+            if key_byte != 0xff {
+                decrypted_message.push(byte ^ key_byte);
+            } else {
+                decrypted_message.push(b'.'); // Placeholder for unknown parts
+            }
+        }
+        if let Ok(decrypted_str) = std::str::from_utf8(&decrypted_message) {
+            println!("Decrypted message {}: {}", index, decrypted_str);
+        } else {
+            println!("Decrypted message {} contains non-UTF-8 characters", index);
+        }
+    }
+
 }
