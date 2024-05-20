@@ -1,5 +1,4 @@
-use hex::decode;
-use std::str;
+use hex::{decode, encode};
 
 fn xor_buffers(buf1: &[u8], buf2: &[u8]) -> Vec<u8> {
     buf1.iter().zip(buf2.iter()).map(|(&x1, &x2)| x1 ^ x2).collect()
@@ -24,39 +23,11 @@ fn main() {
 
     let ciphertexts: Vec<Vec<u8>> = ciphertext_hex.iter().map(|&hex| hex_to_bytes(hex)).collect();
 
-    let crib = "the ";
-    let crib_bytes = crib.as_bytes();
-
-    // Store key segments and their positions
-    let mut key_segments: Vec<(usize, Vec<u8>)> = Vec::new();
-
-    for i in 0..ciphertexts[0].len() - crib_bytes.len() + 1 {
-        for (cipher_index, ciphertext) in ciphertexts.iter().enumerate() {
-            if i + crib_bytes.len() <= ciphertext.len() {
-                let segment = &ciphertext[i..i + crib_bytes.len()];
-                let key_segment = xor_buffers(segment, crib_bytes);
-
-                // Apply the key segment to all ciphertexts at this position
-                for (index, ct) in ciphertexts.iter().enumerate() {
-                    if i + crib_bytes.len() <= ct.len() {
-                        let decrypted_segment = xor_buffers(&ct[i..i + crib_bytes.len()], &key_segment);
-                        if let Ok(decrypted_text) = str::from_utf8(&decrypted_segment) {
-                            if decrypted_text == crib {
-                                let key_segment = xor_buffers(segment, crib_bytes);
-                                key_segments.push((i, key_segment.clone()));
-                                println!("Position: {}, Ciphertext: {}, Decrypted: {}", i, index, decrypted_text);
-
-                                println!("Key segment at position {}: {:?}", i, key_segment);
-                            }
-                        } else {
-                            break;
-                        }
-                    }
-                }
-
-            }
+    for i in 0..ciphertexts.len() {
+        for j in i + 1..ciphertexts.len() {
+            let xored = xor_buffers(&ciphertexts[i], &ciphertexts[j]);
+            let hex_xored = encode(&xored);
+            println!("XOR of ciphertext {} and {}: {}", i, j, hex_xored);
         }
     }
-
-    // Print out the identified key segments for the crib
 }
