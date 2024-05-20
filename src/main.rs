@@ -8,6 +8,53 @@ fn hex_to_bytes(hex_str: &str) -> Vec<u8> {
     decode(hex_str).expect("Invalid hex string")
 }
 
+fn find_consecutive_zeros_and_try_common_words(ciphertexts: Vec<Vec<u8>>, xored: Vec<u8>) {
+
+    // Identify positions with at least four consecutive zeros
+    let mut zero_positions = Vec::new();
+    let mut count = 0;
+    for (index, &byte) in xored.iter().enumerate() {
+        if byte == 0 {
+            count += 1;
+            if count >= 4 {
+                zero_positions.push(index - 3);  // Store the start position of the 4 consecutive zeros
+            }
+        } else {
+            count = 0;
+        }
+    }
+
+    println!("\nPositions with at least four consecutive zeros:");
+    for pos in &zero_positions {
+        println!("{}", pos);
+    }
+
+    // Define common English words to try
+    let common_words = ["a ", "i ", "he", "in", "to", "it", "is", "on", "at", "an"];
+
+    // Try the common words at the identified positions
+    for &pos in &zero_positions {
+        for &word in &common_words {
+            let word_bytes = word.as_bytes();
+            let segment = &ciphertexts[0][pos..pos + word_bytes.len()];
+            let key_segment = xor_buffers(segment, word_bytes);
+
+            println!("\nTrying word '{}' at position {}: Key segment: {:?}", word, pos, key_segment);
+
+            // Apply the key segment to both ciphertexts
+            for ct_idx in 0..2 {
+                if pos + word_bytes.len() <= ciphertexts[ct_idx].len() {
+                    let ct_segment = &ciphertexts[ct_idx][pos..pos + word_bytes.len()];
+                    let decrypted_text = xor_buffers(ct_segment, &key_segment);
+                    if let Ok(decrypted_str) = std::str::from_utf8(&decrypted_text) {
+                        println!("Ciphertext {}: Decrypted with key segment at position {}: {}", ct_idx, pos, decrypted_str);
+                    }
+                }
+            }
+        }
+    }
+}
+
 fn main() {
     let ciphertext_hex = [
         "160111433b00035f536110435a380402561240555c526e1c0e431300091e4f04451d1d490d1c49010d000a0a4510111100000d434202081f0755034f13031600030d0204040e",
@@ -20,14 +67,17 @@ fn main() {
         "0c06004316061b48002a4509065e45221654501c0a075f540c42190b165c",
         "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
     ];
-
     let ciphertexts: Vec<Vec<u8>> = ciphertext_hex.iter().map(|&hex| hex_to_bytes(hex)).collect();
+
 
     for i in 0..ciphertexts.len() {
         for j in i + 1..ciphertexts.len() {
             let xored = xor_buffers(&ciphertexts[i], &ciphertexts[j]);
             let hex_xored = encode(&xored);
             println!("XOR of ciphertext {} and {}: {}", i, j, hex_xored);
+            find_consecutive_zeros_and_try_common_words(vec![ciphertexts[i].clone(), ciphertexts[j].clone()], xored);
+            println!("----");
         }
     }
+
 }
