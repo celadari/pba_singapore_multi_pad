@@ -1,4 +1,5 @@
-use hex::{decode, encode};
+use hex::decode;
+use std::collections::HashMap;
 
 fn xor_buffers(buf1: &[u8], buf2: &[u8]) -> Vec<u8> {
     buf1.iter().zip(buf2.iter()).map(|(&x1, &x2)| x1 ^ x2).collect()
@@ -8,51 +9,8 @@ fn hex_to_bytes(hex_str: &str) -> Vec<u8> {
     decode(hex_str).expect("Invalid hex string")
 }
 
-fn find_consecutive_zeros_and_try_common_words(ciphertexts: Vec<Vec<u8>>, xored: Vec<u8>) {
-
-    // Identify positions with at least four consecutive zeros
-    let mut zero_positions = Vec::new();
-    let mut count = 0;
-    for (index, &byte) in xored.iter().enumerate() {
-        if byte == 0 {
-            count += 1;
-            if count >= 4 {
-                zero_positions.push(index - 3);  // Store the start position of the 4 consecutive zeros
-            }
-        } else {
-            count = 0;
-        }
-    }
-
-    println!("\nPositions with at least four consecutive zeros:");
-    for pos in &zero_positions {
-        println!("{}", pos);
-    }
-
-    // Define common English words to try
-    let common_words = ["a ", "i ", "he", "in", "to", "it", "is", "on", "at", "an"];
-
-    // Try the common words at the identified positions
-    for &pos in &zero_positions {
-        for &word in &common_words {
-            let word_bytes = word.as_bytes();
-            let segment = &ciphertexts[0][pos..pos + word_bytes.len()];
-            let key_segment = xor_buffers(segment, word_bytes);
-
-            println!("\nTrying word '{}' at position {}: Key segment: {:?}", word, pos, key_segment);
-
-            // Apply the key segment to both ciphertexts
-            for ct_idx in 0..2 {
-                if pos + word_bytes.len() <= ciphertexts[ct_idx].len() {
-                    let ct_segment = &ciphertexts[ct_idx][pos..pos + word_bytes.len()];
-                    let decrypted_text = xor_buffers(ct_segment, &key_segment);
-                    if let Ok(decrypted_str) = std::str::from_utf8(&decrypted_text) {
-                        println!("Ciphertext {}: Decrypted with key segment at position {}: {}", ct_idx, pos, decrypted_str);
-                    }
-                }
-            }
-        }
-    }
+fn bytes_to_string(bytes: &[u8]) -> String {
+    bytes.iter().map(|&b| if b.is_ascii() { b as char } else { '.' }).collect()
 }
 
 fn main() {
@@ -65,19 +23,46 @@ fn main() {
         "0b4916060808001a542e0002101309050345500b00050d04005e030c071b4c1f111b161a4f01500a08490b0b451604520d0b1d1445060f531c48124f1305014c051f4c001100262d38490f0b4450061800004e001b451b1d594e45411d014e004801491b0b0602050d41041e0a4d53000d0c411c41111c184e130a0015014f03000c1148571d1c011c55034f12030d4e0b45150c5c",
         "011b0d131b060d4f5233451e161b001f59411c090a0548104f431f0b48115505111d17000e02000a1e430d0d0b04115e4f190017480c14074855040a071f4448001a050110001b014c1a07024e5014094d0a1c541052110e54074541100601014e101a5c",
         "0c06004316061b48002a4509065e45221654501c0a075f540c42190b165c",
-        "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
     ];
+
+    // Convert hex strings to byte vectors
     let ciphertexts: Vec<Vec<u8>> = ciphertext_hex.iter().map(|&hex| hex_to_bytes(hex)).collect();
+    let min_len = ciphertexts.iter().map(|c| c.len()).min().expect("No ciphertexts provided");
 
+    let mut key = vec![0u8; min_len];
+    let mut potential_keys = vec![vec![0; 256]; min_len];
 
+    // XOR ciphertexts in pairs and record potential keys
     for i in 0..ciphertexts.len() {
         for j in i + 1..ciphertexts.len() {
-            let xored = xor_buffers(&ciphertexts[i], &ciphertexts[j]);
-            let hex_xored = encode(&xored);
-            println!("XOR of ciphertext {} and {}: {}", i, j, hex_xored);
-            find_consecutive_zeros_and_try_common_words(vec![ciphertexts[i].clone(), ciphertexts[j].clone()], xored);
-            println!("----");
+            let xored = xor_buffers(&ciphertexts[i][..min_len], &ciphertexts[j][..min_len]);
+            for k in 0..xored.len() {
+                if xored[k].is_ascii_alphabetic() {
+                    potential_keys[k][ciphertexts[i][k] as usize ^ b' ' as usize] += 1;
+                    potential_keys[k][ciphertexts[j][k] as usize ^ b' ' as usize] += 1;
+                }
+            }
         }
     }
 
+    // Determine the key by selecting the most frequent potential key for each position
+    for i in 0..key.len() {
+        key[i] = potential_keys[i]
+            .iter()
+            .enumerate()
+            .max_by_key(|&(_, &count)| count)
+            .map(|(k, _)| k as u8)
+            .unwrap_or(0);
+    }
+
+    // Decrypt the messages using the derived key
+    for (i, ciphertext) in ciphertexts.iter().enumerate() {
+        let decrypted_message: Vec<u8> = xor_buffers(&ciphertext[..min_len], &key);
+        let decrypted_text = bytes_to_string(&decrypted_message);
+        println!("Decrypted message {}: {}", i, decrypted_text);
+    }
+
+    // Print the derived key
+    println!("Derived key: {}", key.iter().map(|&k| format!("{:02x}", k)).collect::<String>());
 }
