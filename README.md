@@ -111,6 +111,40 @@ Using the partial key "Bitcoin: A purely peer-to-peer ", we obtained the followi
 
 These partial decryption validate our hypothesis about the key and provide more context to the messages.
 
+### Step 6: Extending the Key
+After the space "Bitcoin: A purely peer-to-peer ", we tried all letters of the alphabet until reaching the letter 'V', which made sense. This extended the key to "Bitcoin: A purely peer-to-peer V".
+
+### Results with Extended Key Part
+Using the extended key part, we obtained the following decrypted messages:
+
+1. **Decrypted message** 0: The Times 03/Jan/2009 Chancellor
+2. **Decrypted message** 1: Governments are good at cutting
+3. **Decrypted message** 2: Bitcoin is great as a form of di
+4. **Decrypted message** 3: In order to have a decentralized
+5. **Decrypted message** 4: As society becomes more and more
+6. **Decrypted message** 5: I began to realize new possibili
+7. **Decrypted message** 6: Cryptocurrencies allowed non-cus
+8. **Decrypted message** 7: Not your keys, Not your coins.
+9. **Decrypted message** 8: Bitcoin: A purely peer-to-peer v
 ---
+
+### Step 7: Extending the Key again
+We then tried the word "version" to further extend the key, resulting in the following decrypted messages:
+### Results with Extended Key Part
+Using the extended key part, we obtained the following decrypted messages:
+1. **Decrypted message** 0: The Times 03/Jan/2009 Chancellor on bri
+2. **Decrypted message** 1: Governments are good at cutting off the
+3. **Decrypted message** 2: Bitcoin is great as a form of digital m
+4. **Decrypted message** 3: In order to have a decentralized databa
+5. **Decrypted message** 4: As society becomes more and more comple
+6. **Decrypted message** 5: I began to realize new possibilities op
+7. **Decrypted message** 6: Cryptocurrencies allowed non-custodial
+8. **Decrypted message** 7: Not your keys, Not your coins.
+9. **Decrypted message** 8: Bitcoin: A purely peer-to-peer version
+
+
+---
+
+
 
 This README provides a detailed explanation of the steps taken to decrypt the XOR-encrypted messages, the initial decrypted results, the hypothesis testing, and the partial decryption using the known part of the key.
